@@ -6,6 +6,7 @@ import sys
 import joblib  # For saving and loading models
 from sklearn.base import BaseEstimator, ClassifierMixin
 
+
 class NullModel(BaseEstimator, ClassifierMixin):
     def __init__(self, default_prediction=0):
         self.default_prediction = default_prediction
@@ -21,6 +22,7 @@ class NullModel(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         # Returns the default prediction for all inputs
         return np.full((X.shape[0],), self.default_prediction)
+
 
 def get_dataset(split):
     # Load dataset based on split type (train, noise_test, mask_test)
@@ -51,10 +53,12 @@ def get_dataset(split):
 
     return np.array(data_images), np.array(data_labels)
 
+
 def save_model(model, filename='trained_model.pkl'):
     # Save the model to a file
     joblib.dump(model, filename)
     print(f"Model saved to {filename}")
+
 
 def load_model(filename='trained_model.pkl'):
     # Load model from file with error handling if file is missing

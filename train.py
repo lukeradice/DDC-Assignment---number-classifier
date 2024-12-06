@@ -1,4 +1,5 @@
 from utils import *
+# import system_answer as system
 import system
 
 
@@ -7,7 +8,7 @@ def main():
     train_images, train_labels = get_dataset('train')
 
     # Extract dimension-reduced features for training
-    train_feature_vectors = system.image_to_reduced_feature(train_images, 'train')
+    train_feature_vectors = system.image_to_reduced_feature(train_images, train_labels, 'train')
 
     # Train the classifier
     model = system.training_model(train_feature_vectors, train_labels)
