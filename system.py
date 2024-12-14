@@ -34,17 +34,39 @@ class ImprovedModel(BaseEstimator, ClassifierMixin):
     def project_pca_train(self, test_data):
         covx = np.cov(self.train_feature_vectors, rowvar=0)
         N = covx.shape[0]
-        w, v = scipy.linalg.eigh(covx, subset_by_index=(N - 250, N - 1))
+        w, v = scipy.linalg.eigh(covx, subset_by_index=(N - 240, N - 1))
         v = np.fliplr(v)
         return np.dot((test_data - np.mean(self.train_feature_vectors, axis=0)), v)
         return test_data
     #without pca = 93.2, 79.8
-    #40 = 94.6, 72.9
-    #80 = 94.1, 76.4
-    #120 = 93.7, 76.9
-    #180 = 93.6, 77.2
-    #220 = 93.50, 77.3
-    #250 = 93.50, 77.9
+    #250 = 93.50, 77.9 with k=1
+    #200: 93.1, 77.4
+    #250: 93.3, 77.4 with k=3
+ 
+    def getKNearest(self, k, dist):
+        nearestTracker = []
+        nearest = np.argmax(dist, axis=1)
+        for i in range(k):
+            nearestLabel = self.train_labels[nearest]
+            nearestTracker.append(nearestLabel)
+            dist[np.arange(dist.shape[0]), nearest] = -np.inf
+            nearest = np.argmax(dist, axis=1)
+        nearestTrackerNp = np.array(nearestTracker)
+        computeMode = mode(nearestTrackerNp, axis=0)
+        return computeMode.mode.flatten()
+        #best = 4: 93.30, 80.80
+
+    def predict(self, test):
+        train = self.project_pca_train(self.train_feature_vectors) 
+        test = self.project_pca_train(test)
+
+        # Super compact implementation of nearest neighbour
+        x = np.dot(test, train.transpose())
+        modtest = np.sqrt(np.sum(test * test, axis=1))
+        modtrain = np.sqrt(np.sum(train * train, axis=1))
+        # cosine distance
+        dist = x / np.outer(modtest, modtrain.transpose())
+        return self.getKNearest(3, dist)
 
     def predict2(self, test):
         
@@ -119,30 +141,7 @@ class ImprovedModel(BaseEstimator, ClassifierMixin):
         p9 = (dist9.pdf(test))
         probability = np.vstack((p0, p1, p2, p3, p4, p5, p6, p7, p8, p9))
         return np.argmax(probability, axis=0)
-    
-    def getKNearest(self, k, dist):
-        nearestTracker = []
-        for i in range(k):
-            nearest = np.argmax(dist, axis=1)
-            dist[:, nearest] = 0
-            nearestLabel = self.train_labels[nearest]
-            nearestTracker.append(nearestLabel)
-        nearestTrackerNp = np.array(nearestTracker)
-        computeMode = mode(nearestTrackerNp, axis=0)
-        return computeMode.mode.flatten()
-
-    def predict(self, test):
-        train = self.project_pca_train(self.train_feature_vectors) 
-        test = self.project_pca_train(test)
-
-        # Super compact implementation of nearest neighbour
-        x = np.dot(test, train.transpose())
-        modtest = np.sqrt(np.sum(test * test, axis=1))
-        modtrain = np.sqrt(np.sum(train * train, axis=1))
-        dist = x / np.outer(modtest, modtrain.transpose())
-        # cosine distance
-        # nearest = np.argmax(dist, axis=1)
-        return self.getKNearest(1, dist)
+   
         
 def calculateBestFeatures(train_features, train_labels):
     variances = np.var(train_features, axis=0)
