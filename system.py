@@ -5,25 +5,16 @@ import scipy.linalg
 
 #calculated after calling train.py with a print statement on the call to 
 #calculate_best_features in the ImprovedModel constructor
-top_55_features_after_pca = [
-    np.int64(0), np.int64(1), np.int64(3), np.int64(4), np.int64(6), 
-    np.int64(5), np.int64(2), np.int64(12), np.int64(15), np.int64(7), 
-    np.int64(13), np.int64(9), np.int64(16), np.int64(8), np.int64(18), 
-    np.int64(41), np.int64(11), np.int64(14), np.int64(17), np.int64(21), 
-    np.int64(20), np.int64(19), np.int64(23), np.int64(26), np.int64(22), 
-    np.int64(33), np.int64(37), np.int64(31), np.int64(53), np.int64(25), 
-    np.int64(10), np.int64(28), np.int64(32), np.int64(36), np.int64(40),
-    np.int64(24), np.int64(82), np.int64(46), np.int64(62), np.int64(95), 
-    np.int64(38), np.int64(65), np.int64(27), np.int64(30), np.int64(64), 
-    np.int64(50), np.int64(58), np.int64(45), np.int64(168), np.int64(68), 
-    np.int64(98), np.int64(94), np.int64(60), np.int64(99), np.int64(39)]
+
+#beat 85.70
 
 def apply_pca(images):
-    train_images, train_labels = get_dataset('train')  
+    train_images, train_labels = get_dataset('train') 
+    train_images = train_images / np.linalg.norm(train_images, axis=1, keepdims=True) 
     covx = np.cov(train_images, rowvar=0)
     N = covx.shape[0]
     # get the top 240 principal components
-    w, v = scipy.linalg.eigh(covx, subset_by_index=(N - 240, N - 1))
+    w, v = scipy.linalg.eigh(covx, subset_by_index=(N - 125, N - 1))
     v = np.fliplr(v)
     return np.dot((images - np.mean(train_images, axis=0)), v)
 
@@ -31,7 +22,7 @@ def image_to_reduced_feature(images,  labels=None, split=None):
     # normalise the data so calculting cosine distance in knn will be effective
     normalised =  images / np.linalg.norm(images, axis=1, keepdims=True)
     pca_applied =  apply_pca(normalised)
-    return pca_applied[:, top_55_features_after_pca]
+    return pca_applied
 
 def training_model(train_feature_vectors, train_labels):
     return ImprovedModel(train_feature_vectors, train_labels)
@@ -43,7 +34,7 @@ class ImprovedModel(BaseEstimator, ClassifierMixin):
 
         # below is what I used to determine best features, obviously no need for
         # it to be called in my final classifier but keeping it here to show you
-        #print(calculateBestFeatures(train_data, self.train_labels))
+        # print(calculateBestFeatures(train_data, self.train_labels))
  
     def getKNearest(self, k, dist):
         nearestTracker = []
@@ -78,7 +69,7 @@ def calculateBestFeatures(train_features, train_labels):
             scores += d12
 
     bestFeatures = []
-    for i in range(55):
+    for i in range(125):
         maxIndex = np.argmax(scores)
         bestFeatures.append(maxIndex)
         scores[maxIndex] = -np.inf
