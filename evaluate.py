@@ -21,6 +21,8 @@ def main():
     mask_test_accuracy = accuracy_score(mask_test_labels, mask_test_predictions)
     print(f"Accuracy on mask_test set: {mask_test_accuracy * 100:.2f}%")
 
+    print(f"Overall accuracy: {(mask_test_accuracy+noise_test_accuracy) * 50:.2f}%")
+
 
 if __name__ == "__main__":
     main()

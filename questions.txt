@@ -1,0 +1,33 @@
+# MNIST Image Classifier Assignment Report
+[Replace the square-bracketed text with your own text. *Leave everything else unchanged.* 
+Note, the reports are parsed to check word limits, etc. Changing the format may cause 
+the parsing to fail.]
+
+## Feature Extraction (Max 300 Words)
+
+I use principal component analysis to reduce the dimensionality of my test/train data. I first must normalise this data 
+so cosine distance can be used as an effecitve measurement in nearest neighbour later on (means cosine similarlity won't
+be influenced by magntidue of image vectors but their angles between one another). I find the top 170 principal components 
+of the non-normalised training data and project the normalised training/test data when it is input in image_to_reduced_feature
+onto this. Choosing to project onto non-normalised training data produced significantly better results, due to the fact PCA
+captures the directions of maximum variance, which is tied to the original scale of the data, so information would be lost if
+we normalised the training data before finding its principal components
+
+
+## Classifier Design (Max 300 Words)
+
+[Describe and justify your classifier design and training process. ]
+
+
+## Performance
+
+My percentage correctness scores (accuracy, to 1 decimal place) for the test data are as follows.
+
+Accuracy on Noisy test data: 93.9%
+
+Accuracy on Masked test data: 80.3%
+
+
+## Analysis of Results [Max 400 Words]
+
+[Provide as much insight as possible about the experimental results, highlighting key observations in the classifierâ€™s performance.]
