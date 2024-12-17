@@ -7,18 +7,18 @@ import scipy.linalg
 def apply_pca(images):
     #normalised data is projected onto non normalised test data
     train_images, train_labels = get_dataset('train') 
+    train_images, train_labels = get_dataset('train') 
     covx = np.cov(train_images, rowvar=0)
     N = covx.shape[0]
     # get the top 170 principal components
-    w, v = scipy.linalg.eigh(covx, subset_by_index=(N - 170, N - 1))
+    w, v = scipy.linalg.eigh(covx, subset_by_index=(N - 182, N - 1))
     v = np.fliplr(v)
     return np.dot((images - np.mean(train_images, axis=0)), v)
-
 def image_to_reduced_feature(images,  labels=None, split=None):
     # normalise the data so calculting cosine distance in knn will be effective
     # normalised =  images / np.linalg.norm(images, axis=1, keepdims=True)
     norms = np.linalg.norm(images, axis=1, keepdims=True)
-    norms[norms == 0] = 1e-10  # Prevent divide-by-zero
+    norms[norms == 0] = 1e-10  # Prevent divisions by zero
     normalised = images / norms
     pca_applied =  apply_pca(normalised)
     return pca_applied
@@ -55,4 +55,4 @@ class ImprovedModel(BaseEstimator, ClassifierMixin):
         modtrain[modtrain == 0] = 1e-10
         # cosine distance
         dist = x / np.outer(modtest, modtrain.transpose())
-        return self.getKNearest(3, dist)
+        return self.getKNearest(4, dist)
